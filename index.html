@@ -299,7 +299,7 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-divliq" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-divliq" style="display:none"></canvas></div>
     </div>
     <div class="panel">
-      <div class="panel-header"><div><div class="panel-title">Necessidade de Financiamento — Nominal</div><div class="panel-sub">R$ MILHÕES · SÉRIE 5800</div></div></div>
+      <div class="panel-header"><div><div class="panel-title">Necessidade de Financiamento — Nominal</div><div class="panel-sub">R$ MILHÕES · NFSP SETOR PÚBLICO CONSOLIDADO · SÉRIE 4583</div></div></div>
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-nominal" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-nominal" style="display:none"></canvas></div>
     </div>
   </div>
@@ -602,6 +602,41 @@ Chart.defaults.font.family = "'DM Mono', monospace";
 Chart.defaults.font.size = 10;
 const charts = {};
 const tabLoaded = {macro:false,credito:false,fiscal:false,atividade:false,cambio:false,balpag:false,ifdata:false,instituicoes:false};
+
+// ─── WATERMARK PLUGIN ─────────────────────────────────────────────────────────
+const watermarkPlugin = {
+  id: 'oscapital_watermark',
+  afterDraw(chart) {
+    const {ctx, chartArea:{left,right,top,bottom}} = chart;
+    const cx = (left+right)/2;
+    const cy = (top+bottom)/2;
+    ctx.save();
+    ctx.globalAlpha = 0.10;
+    ctx.translate(cx, cy);
+
+    // "OS" — peso 500
+    ctx.font = "500 22px 'DM Mono', monospace";
+    ctx.fillStyle = '#C8963A';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.letterSpacing = '0.18em';
+    ctx.fillText('OS', -6, 0);
+
+    // separador vertical 2px
+    ctx.fillStyle = '#C8963A';
+    ctx.fillRect(-2, -12, 2, 24);
+
+    // "CAPITAL" — peso 300
+    ctx.font = "300 22px 'DM Mono', monospace";
+    ctx.fillStyle = '#C8963A';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '0.28em';
+    ctx.fillText(' CAPITAL', 4, 0);
+
+    ctx.restore();
+  }
+};
+Chart.register(watermarkPlugin);
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 const fmt = (d) => { const [dd,mm,yyyy]=d.split('/'); return `${mm}/${yyyy}`; };
@@ -944,7 +979,7 @@ async function loadDivLiq() {
 
 async function loadNominal() {
   try {
-    const d=await bcb(5800,24), thin=thinData(d);
+    const d=await bcb(4583,24), thin=thinData(d);
     buildBar('chart-nominal',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)/1000));
     showC('chart-nominal','load-nominal');
     const last=d[d.length-1];
@@ -1244,12 +1279,12 @@ async function consultarIFdata() {
 }
 
 // ─── TAB INSTITUIÇÕES ─────────────────────────────────────────────────────────
-const OLINDA_INST = 'https://olinda.bcb.gov.br/olinda/servico/Instituicoes_em_funcionamento/versao/v1/odata';
 let instData = [];
 
 async function loadInstituicoes() {
   try {
-    const url = `${OLINDA_INST}/InstituicoesEmFuncionamento?$format=json&$top=2000&$select=CNPJ,NomeInstituicao,TipoInstituicao,MunicipioSede,UfSede,DataInicioAtividade&$orderby=NomeInstituicao`;
+    // Usa IfDataCadastro da API IFDATA — mesma fonte do bacenR, CORS liberado
+    const url = `${OLINDA}/IfDataCadastro?$format=json&$top=2000&$orderby=NomeInstituicao`;
     const r = await fetch(url);
     if(!r.ok) throw new Error(r.status);
     const json = await r.json();
@@ -1257,24 +1292,60 @@ async function loadInstituicoes() {
 
     // KPIs
     document.getElementById('ik-total').textContent = instData.length;
-    const bancos = instData.filter(d=>/banco/i.test(d.TipoInstituicao||'')).length;
-    const coops  = instData.filter(d=>/cooperativa/i.test(d.TipoInstituicao||'')).length;
-    const fin    = instData.filter(d=>/financeira/i.test(d.TipoInstituicao||'')).length;
-    document.getElementById('ik-bancos').textContent = bancos;
-    document.getElementById('ik-coops').textContent = coops;
-    document.getElementById('ik-fin').textContent = fin;
+    const bancos = instData.filter(d=>/banco/i.test(d.TipoInstituicao||d.Segmento||'')).length;
+    const coops  = instData.filter(d=>/cooperativa/i.test(d.TipoInstituicao||d.Segmento||'')).length;
+    const fin    = instData.filter(d=>/financeira/i.test(d.TipoInstituicao||d.Segmento||'')).length;
+    document.getElementById('ik-bancos').textContent = bancos||'—';
+    document.getElementById('ik-coops').textContent  = coops||'—';
+    document.getElementById('ik-fin').textContent    = fin||'—';
 
     // Preencher UFs
-    const ufs = [...new Set(instData.map(d=>d.UfSede).filter(Boolean))].sort();
+    const ufs = [...new Set(instData.map(d=>d.UfSede||d.Uf).filter(Boolean))].sort();
     const selUF = document.getElementById('inst-uf');
+    selUF.innerHTML = '<option value="">Todos os estados</option>';
     ufs.forEach(uf=>{ const o=document.createElement('option'); o.value=uf; o.textContent=uf; selUF.appendChild(o); });
 
     document.getElementById('load-inst').style.display='none';
     filtrarInst();
 
   } catch(e) {
-    document.getElementById('load-inst').innerHTML = '<div style="color:var(--red);font-family:\'DM Mono\',monospace;font-size:10px">⚠ Erro ao carregar instituições. Verifique a conexão.</div>';
     console.error('Inst',e);
+    // Fallback: tenta endpoint alternativo de bancos comerciais
+    try {
+      const url2 = `https://olinda.bcb.gov.br/olinda/servico/Instituicoes_em_funcionamento/versao/v1/odata/BancosComerciais?$format=json&$top=500`;
+      const r2 = await fetch(url2);
+      const j2 = await r2.json();
+      instData = (j2.value||[]).map(d=>({
+        NomeInstituicao: d.Nome||d.NomeInstituicao,
+        TipoInstituicao: 'Banco Comercial',
+        UfSede: d.UfSede||d.Uf,
+        MunicipioSede: d.MunicipioSede||d.Municipio,
+        CNPJ: d.CNPJ,
+        DataInicioAtividade: d.DataInicioAtividade
+      }));
+      document.getElementById('load-inst').style.display='none';
+      document.getElementById('ik-total').textContent = instData.length;
+      filtrarInst();
+    } catch(e2) {
+      document.getElementById('load-inst').innerHTML = `
+        <div style="text-align:center;padding:30px;">
+          <div style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px;margin-bottom:12px">
+            ⚠ A API de Instituições do BCB bloqueia requisições diretas do navegador (CORS).
+          </div>
+          <div style="color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:14px;margin-bottom:16px">
+            Acesse a lista completa diretamente no portal oficial:
+          </div>
+          <a href="https://www.bcb.gov.br/estabilidadefinanceira/relacao_instituicoes_em_funcionamento" 
+             target="_blank"
+             style="background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.08em;padding:10px 24px;text-decoration:none;display:inline-block;">
+            ACESSAR PORTAL BCB →
+          </a>
+          <div style="color:var(--text-muted);font-family:'DM Mono',monospace;font-size:9px;margin-top:12px">
+            bcb.gov.br/estabilidadefinanceira/relacao_instituicoes_em_funcionamento
+          </div>
+        </div>`;
+      console.error('Inst fallback',e2);
+    }
   }
 }
 
@@ -1313,11 +1384,40 @@ function filtrarInst() {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+async function loadTicker() {
+  // Dados extras do ticker que não carregam na aba Macro
+  try {
+    const ibc = await bcb(24363, 3);
+    const last = ibc[ibc.length-1];
+    document.getElementById('t-ibc').textContent = fmtNum(last.valor,1);
+  } catch(e){}
+  try {
+    const cred = await bcb(20541, 3);
+    const last = cred[cred.length-1];
+    document.getElementById('t-cred').textContent = fmtNum(parseFloat(last.valor)/1000,0);
+  } catch(e){}
+  try {
+    const inad = await bcb(21082, 3);
+    const last = inad[inad.length-1];
+    document.getElementById('t-inad').textContent = fmtNum(last.valor);
+  } catch(e){}
+  try {
+    const div = await bcb(13762, 3);
+    const last = div[div.length-1];
+    document.getElementById('t-divida').textContent = fmtNum(last.valor,1);
+  } catch(e){}
+  try {
+    const ptax = await bcb(1, 1);
+    const last = ptax[ptax.length-1];
+    document.getElementById('t-ptax').textContent = fmtNum(last.valor,3);
+  } catch(e){}
+}
 async function init() {
   document.getElementById('update-time').innerHTML =
     `<span class="live-dot"></span>Atualizado: ${new Date().toLocaleString('pt-BR')}`;
   tabLoaded.macro = true;
   loadMacro();
+  loadTicker(); // carrega dados extras do ticker em paralelo
 }
 init();
 </script>
