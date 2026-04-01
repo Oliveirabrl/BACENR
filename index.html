@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS Capital — Painel Macroeconômico BCB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --ink:#0d0d0d; --ink2:#141414; --ink3:#1c1c1c;
+  --gold:#C8963A; --gold2:#e0a94a; --gold-dim:rgba(200,150,58,.15); --gold-line:rgba(200,150,58,.3);
+  --text:#e8e0d0; --text-dim:#8a7f6e; --text-muted:#4a4540;
+  --green:#4caf7d; --red:#e05555; --blue:#5b8dee; --purple:#9b7fe8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(-35deg,transparent,transparent 80px,rgba(200,150,58,.025) 80px,rgba(200,150,58,.025) 81px);pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--gold-line);background:linear-gradient(180deg,rgba(200,150,58,.06) 0%,transparent 100%);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-os{font-family:'DM Mono',monospace;font-weight:500;font-size:22px;color:var(--gold);}
+.logo-sep{width:2px;height:22px;background:var(--gold);}
+.logo-capital{font-family:'DM Mono',monospace;font-weight:300;font-size:22px;color:var(--gold);letter-spacing:.28em;}
+.logo-sub{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.22em;text-transform:uppercase;margin-top:3px;}
+.header-right{text-align:right;}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.08em;line-height:1;}
+.header-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.15em;margin-top:2px;}
+#update-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);margin-top:2px;}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;margin-right:4px;vertical-align:middle;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+/* TICKER */
+.ticker-bar{position:relative;z-index:10;background:var(--ink2);border-bottom:1px solid var(--gold-line);padding:0 32px;height:36px;display:flex;align-items:center;gap:24px;overflow-x:auto;}
+.ticker-bar::-webkit-scrollbar{display:none;}
+.ticker-item{display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;}
+.ticker-label{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase;}
+.ticker-value{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);letter-spacing:.04em;}
+.ticker-unit{font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted);}
+.ticker-sep{width:1px;height:16px;background:var(--text-muted);flex-shrink:0;}
+
+/* TABS */
+.tabs-bar{position:relative;z-index:10;display:flex;align-items:stretch;background:var(--ink2);border-bottom:2px solid var(--gold-line);padding:0 32px;gap:0;}
+.tab-btn{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.1em;color:var(--text-dim);padding:12px 22px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-icon{font-size:13px;}
+
+/* CONTENT */
+.tab-content{display:none;position:relative;z-index:5;padding:24px 32px;max-width:1440px;margin:0 auto;}
+.tab-content.active{display:block;}
+
+/* KPI ROW */
+.kpi-row{display:grid;gap:12px;margin-bottom:20px;}
+.kpi-row-6{grid-template-columns:repeat(6,1fr);}
+.kpi-row-4{grid-template-columns:repeat(4,1fr);}
+.kpi-row-5{grid-template-columns:repeat(5,1fr);}
+.kpi-card{background:var(--ink2);border:1px solid var(--gold-line);border-top:2px solid var(--gold);padding:14px 16px;transition:border-color .3s;}
+.kpi-card:hover{border-color:var(--gold);}
+.kpi-card.blue{border-top-color:var(--blue);}
+.kpi-card.green{border-top-color:var(--green);}
+.kpi-card.red{border-top-color:var(--red);}
+.kpi-card.purple{border-top-color:var(--purple);}
+.kpi-label{font-family:'DM Mono',monospace;font-size:8px;font-weight:500;color:var(--text-dim);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;}
+.kpi-value{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold2);line-height:1;letter-spacing:.02em;}
+.kpi-value.blue{color:var(--blue);}
+.kpi-value.green{color:var(--green);}
+.kpi-value.red{color:var(--red);}
+.kpi-value.purple{color:var(--purple);}
+.kpi-unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:1px;}
+.kpi-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--text-dim);margin-top:5px;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:16px;}
+.col-full{grid-column:1/-1;}
+
+/* PANELS */
+.panel{background:var(--ink2);border:1px solid rgba(200,150,58,.2);padding:18px 20px;}
+.panel-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;line-height:1;}
+.panel-sub{font-family:'DM Mono',monospace;font-size:8px;color:var(--text-dim);margin-top:2px;letter-spacing:.1em;}
+.period-btns{display:flex;gap:3px;flex-shrink:0;}
+.pbtn{font-family:'DM Mono',monospace;font-size:8px;font-weight:500;background:var(--gold-dim);border:1px solid var(--gold-line);color:var(--gold);padding:3px 7px;letter-spacing:.08em;cursor:pointer;transition:background .2s;}
+.pbtn:hover{background:rgba(200,150,58,.25);}
+.pbtn.active{background:rgba(200,150,58,.3);color:var(--gold2);}
+
+/* CHART */
+.chart-wrap{position:relative;}
+.loading-state{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;}
+.spinner{width:24px;height:24px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.1em;}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:11px;}
+.data-table th{font-size:8px;font-weight:500;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase;padding:5px 8px;text-align:left;border-bottom:1px solid var(--gold-line);}
+.data-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(200,150,58,.04);}
+.up{color:var(--green);} .down{color:var(--red);} .neu{color:var(--gold);}
+
+/* FOOTER */
+footer{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:10px 32px;border-top:1px solid var(--gold-line);background:var(--ink2);}
+.footer-logo{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;}
+.footer-logo .fs{font-weight:500;color:var(--gold);}
+.footer-logo .fsep{width:1px;height:11px;background:var(--gold);margin:0 2px;}
+.footer-logo .fc{font-weight:300;color:var(--gold);letter-spacing:.28em;}
+.footer-src{font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted);letter-spacing:.08em;}
+
+@media(max-width:900px){
+  .kpi-row-6,.kpi-row-5{grid-template-columns:repeat(3,1fr);}
+  .kpi-row-4{grid-template-columns:repeat(2,1fr);}
+  .grid-2,.grid-3,.grid-2-1,.grid-1-2{grid-template-columns:1fr;}
+  header,.tab-content,footer,.ticker-bar,.tabs-bar{padding-left:16px;padding-right:16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="logo">
+      <span class="logo-os">OS</span><span class="logo-sep"></span><span class="logo-capital">CAPITAL</span>
+    </div>
+    <div class="logo-sub">Análise de Investimentos</div>
+  </div>
+  <div class="header-right">
+    <div class="header-title">Painel Macroeconômico BCB</div>
+    <div class="header-sub">API PÚBLICA · BANCO CENTRAL DO BRASIL · DADOS AO VIVO</div>
+    <div id="update-time"><span class="live-dot"></span>Carregando...</div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-item"><span class="ticker-label">SELIC</span><span class="ticker-value" id="t-selic">—</span><span class="ticker-unit">% a.a.</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">IPCA</span><span class="ticker-value" id="t-ipca">—</span><span class="ticker-unit">% mês</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">IGP-M</span><span class="ticker-value" id="t-igpm">—</span><span class="ticker-unit">% mês</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">USD/BRL</span><span class="ticker-value" id="t-ptax">—</span><span class="ticker-unit">venda</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">IBC-Br</span><span class="ticker-value" id="t-ibc">—</span><span class="ticker-unit">índice</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">Créd. Total</span><span class="ticker-value" id="t-cred">—</span><span class="ticker-unit">R$ bi</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">Inadimpl.</span><span class="ticker-value" id="t-inad">—</span><span class="ticker-unit">%</span></div>
+  <span class="ticker-sep"></span>
+  <div class="ticker-item"><span class="ticker-label">Dív. Pública</span><span class="ticker-value" id="t-divida">—</span><span class="ticker-unit">% PIB</span></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="tab-btn active" onclick="setTab('macro')"><span class="tab-icon">📊</span> Macro & Inflação</div>
+  <div class="tab-btn" onclick="setTab('credito')"><span class="tab-icon">💳</span> Crédito</div>
+  <div class="tab-btn" onclick="setTab('fiscal')"><span class="tab-icon">🏛</span> Fiscal</div>
+  <div class="tab-btn" onclick="setTab('atividade')"><span class="tab-icon">⚡</span> Atividade Econômica</div>
+  <div class="tab-btn" onclick="setTab('cambio')"><span class="tab-icon">💱</span> Câmbio & Liquidez</div>
+</div>
+
+<!-- ═══════════════════ ABA MACRO ═══════════════════ -->
+<div class="tab-content active" id="tab-macro">
+  <div class="kpi-row kpi-row-6">
+    <div class="kpi-card"><div class="kpi-label">SELIC Meta</div><div class="kpi-value" id="k-selic">—</div><div class="kpi-unit">% ao ano</div><div class="kpi-sub" id="ks-selic">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">IPCA Mês</div><div class="kpi-value" id="k-ipca">—</div><div class="kpi-unit">% mensal</div><div class="kpi-sub" id="ks-ipca">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">IPCA 12m</div><div class="kpi-value" id="k-ipca12">—</div><div class="kpi-unit">% acumulado</div><div class="kpi-sub" id="ks-ipca12">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">IGP-M Mês</div><div class="kpi-value" id="k-igpm">—</div><div class="kpi-unit">% mensal</div><div class="kpi-sub" id="ks-igpm">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">INPC Mês</div><div class="kpi-value" id="k-inpc">—</div><div class="kpi-unit">% mensal</div><div class="kpi-sub" id="ks-inpc">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">CDI</div><div class="kpi-value" id="k-cdi">—</div><div class="kpi-unit">% ao ano</div><div class="kpi-sub" id="ks-cdi">—</div></div>
+  </div>
+  <div class="grid-2-1">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">IPCA — Inflação Mensal</div><div class="panel-sub">ÍNDICE DE PREÇOS AO CONSUMIDOR AMPLO · SÉRIE 433</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('ipca',1,this)">1A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',5,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',10,this)">10A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:180px"><div class="loading-state" id="load-ipca" style="height:180px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ipca" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Inflação vs Meta</div><div class="panel-sub">IPCA · INPC · IGP-M · 24M</div></div></div>
+      <div class="chart-wrap" style="height:180px"><div class="loading-state" id="load-comp" style="height:180px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-comp" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">SELIC — Taxa Básica</div><div class="panel-sub">META SELIC · SÉRIE 432</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('selic',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('selic',5,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('selic',10,this)">10A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-selic" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-selic" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Acumulado 12 Meses</div><div class="panel-sub">ÍNDICES INFLACIONÁRIOS</div></div></div>
+      <div id="load-tabela" class="loading-state" style="height:170px"><div class="spinner"></div><div class="loading-text">CALCULANDO...</div></div>
+      <table class="data-table" id="tabela-acum" style="display:none">
+        <thead><tr><th>Indicador</th><th>Último mês</th><th>Acum. 12m</th><th>Acum. 6m</th><th>Tend.</th></tr></thead>
+        <tbody id="tabela-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA CRÉDITO ═══════════════════ -->
+<div class="tab-content" id="tab-credito">
+  <div class="kpi-row kpi-row-5">
+    <div class="kpi-card blue"><div class="kpi-label">Crédito Total</div><div class="kpi-value blue" id="k-cred-total">—</div><div class="kpi-unit">R$ bilhões</div><div class="kpi-sub" id="ks-cred-total">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Crédito PF</div><div class="kpi-value blue" id="k-cred-pf">—</div><div class="kpi-unit">R$ bilhões</div><div class="kpi-sub" id="ks-cred-pf">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Crédito PJ</div><div class="kpi-value blue" id="k-cred-pj">—</div><div class="kpi-unit">R$ bilhões</div><div class="kpi-sub" id="ks-cred-pj">—</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Inadimplência Total</div><div class="kpi-value red" id="k-inad-total">—</div><div class="kpi-unit">%</div><div class="kpi-sub" id="ks-inad-total">—</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Inadimpl. PF</div><div class="kpi-value red" id="k-inad-pf">—</div><div class="kpi-unit">%</div><div class="kpi-sub" id="ks-inad-pf">—</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Volume de Crédito</div><div class="panel-sub">TOTAL · PF · PJ — R$ BILHÕES · SÉRIES 20541/20542/20543</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('cred',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('cred',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-cred" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-cred" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Inadimplência</div><div class="panel-sub">TOTAL · PF · PJ — % · SÉRIES 21082/21083/21084</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('inad',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('inad',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-inad" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-inad" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Taxa Média de Juros — Crédito PF</div><div class="panel-sub">% A.A. · SÉRIE 20714</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-jurosPF" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-jurosPF" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Concessões de Crédito</div><div class="panel-sub">FLUXO MENSAL · R$ BILHÕES · SÉRIE 20631</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-concess" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-concess" style="display:none"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA FISCAL ═══════════════════ -->
+<div class="tab-content" id="tab-fiscal">
+  <div class="kpi-row kpi-row-4">
+    <div class="kpi-card purple"><div class="kpi-label">Dívida Bruta / PIB</div><div class="kpi-value purple" id="k-divida">—</div><div class="kpi-unit">%</div><div class="kpi-sub" id="ks-divida">—</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Dívida Líquida / PIB</div><div class="kpi-value purple" id="k-divliq">—</div><div class="kpi-unit">%</div><div class="kpi-sub" id="ks-divliq">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Resultado Primário</div><div class="kpi-value" id="k-primario">—</div><div class="kpi-unit">R$ milhões</div><div class="kpi-sub" id="ks-primario">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Resultado Nominal</div><div class="kpi-value" id="k-nominal">—</div><div class="kpi-unit">R$ milhões</div><div class="kpi-sub" id="ks-nominal">—</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Dívida Bruta do Governo Geral</div><div class="panel-sub">% DO PIB · SÉRIE 13762</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('divida',3,this)">3A</span>
+          <span class="pbtn" onclick="reloadChart('divida',5,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('divida',10,this)">10A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-divida" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-divida" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Resultado Primário — Gov. Central</div><div class="panel-sub">R$ MILHÕES · SÉRIE 5793</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('primario',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('primario',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-primario" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-primario" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Dívida Líquida do Setor Público</div><div class="panel-sub">% DO PIB · SÉRIE 4513</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-divliq" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-divliq" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Necessidade de Financiamento — Nominal</div><div class="panel-sub">R$ MILHÕES · SÉRIE 5800</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-nominal" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-nominal" style="display:none"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA ATIVIDADE ═══════════════════ -->
+<div class="tab-content" id="tab-atividade">
+  <div class="kpi-row kpi-row-4">
+    <div class="kpi-card green"><div class="kpi-label">IBC-Br (Proxy PIB)</div><div class="kpi-value green" id="k-ibc">—</div><div class="kpi-unit">índice</div><div class="kpi-sub" id="ks-ibc">—</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Produção Industrial</div><div class="kpi-value green" id="k-ind">—</div><div class="kpi-unit">índice</div><div class="kpi-sub" id="ks-ind">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Exportações</div><div class="kpi-value" id="k-exp">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-exp">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Importações</div><div class="kpi-value" id="k-imp">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-imp">—</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">IBC-Br — Índice de Atividade</div><div class="panel-sub">PROXY MENSAL DO PIB · SÉRIE 24363</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('ibc',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('ibc',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-ibc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ibc" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Balança Comercial</div><div class="panel-sub">EXPORTAÇÕES vs IMPORTAÇÕES · SÉRIES 22707/22708</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('balanca',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('balanca',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-balanca" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-balanca" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Produção Industrial</div><div class="panel-sub">ÍNDICE · SÉRIE 21859</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-ind" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ind" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Transações Correntes</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22800</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-tc" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-tc" style="display:none"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA CÂMBIO ═══════════════════ -->
+<div class="tab-content" id="tab-cambio">
+  <div class="kpi-row kpi-row-4">
+    <div class="kpi-card"><div class="kpi-label">USD/BRL PTAX</div><div class="kpi-value" id="k-ptax">—</div><div class="kpi-unit">R$ / dólar</div><div class="kpi-sub" id="ks-ptax">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">EUR/BRL</div><div class="kpi-value" id="k-eur">—</div><div class="kpi-unit">R$ / euro</div><div class="kpi-sub" id="ks-eur">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">M1</div><div class="kpi-value blue" id="k-m1">—</div><div class="kpi-unit">R$ bilhões</div><div class="kpi-sub" id="ks-m1">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Reservas Internacionais</div><div class="kpi-value blue" id="k-reservas">—</div><div class="kpi-unit">US$ bilhões</div><div class="kpi-sub" id="ks-reservas">—</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Dólar PTAX — USD/BRL</div><div class="panel-sub">TAXA DE VENDA · SÉRIE 1</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('ptax',6,this)">6M</span>
+          <span class="pbtn" onclick="reloadChart('ptax',12,this)">1A</span>
+          <span class="pbtn" onclick="reloadChart('ptax',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('ptax',60,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-ptax" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ptax" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Euro — EUR/BRL</div><div class="panel-sub">TAXA DE VENDA · SÉRIE 21619</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('eur',12,this)">1A</span>
+          <span class="pbtn" onclick="reloadChart('eur',24,this)">2A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-eur" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-eur" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Reservas Internacionais</div><div class="panel-sub">US$ MILHÕES · SÉRIE 13621</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-reservas" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-reservas" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Meios de Pagamento — M1</div><div class="panel-sub">R$ MILHÕES · SÉRIE 27789</div></div></div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-m1" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-m1" style="display:none"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="fs">OS</span><span class="fsep"></span><span class="fc">CAPITAL</span></div>
+  <div class="footer-src">FONTE: API PÚBLICA · BANCO CENTRAL DO BRASIL (BCB/SGS) · DADOS AUTOMÁTICOS</div>
+</footer>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const BCB = 'https://api.bcb.gov.br/dados/serie/bcdata.sgs';
+Chart.defaults.color = '#8a7f6e';
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 10;
+const charts = {};
+const tabLoaded = {macro:false,credito:false,fiscal:false,atividade:false,cambio:false};
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+const fmt = (d) => { const [dd,mm,yyyy]=d.split('/'); return `${mm}/${yyyy}`; };
+const fmtNum = (v,dec=2) => parseFloat(v).toFixed(dec);
+const today = () => { const d=new Date(); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`; };
+const pad = n => String(n).padStart(2,'0');
+function subM(months) {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+async function bcb(code, months) {
+  const url = `${BCB}.${code}/dados?formato=json&dataInicial=${subM(months)}&dataFinal=${today()}`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
+}
+function showC(id, loadId) {
+  document.getElementById(loadId).style.display='none';
+  document.getElementById(id).style.display='block';
+}
+function setKPI(id, val, unit='', sub='') {
+  const el = document.getElementById(id);
+  if(el) el.textContent = val;
+  const su = document.getElementById('ks-'+id.replace('k-',''));
+  if(su && sub) su.textContent = sub;
+}
+function acum12(data) {
+  return (data.slice(-12).reduce((a,d)=>a*(1+parseFloat(d.valor)/100),1)-1)*100;
+}
+function acum6(data) {
+  return (data.slice(-6).reduce((a,d)=>a*(1+parseFloat(d.valor)/100),1)-1)*100;
+}
+function thinData(arr, max=60) {
+  if(arr.length <= max) return arr;
+  const step = Math.ceil(arr.length/max);
+  return arr.filter((_,i) => i%step===0 || i===arr.length-1);
+}
+
+// ─── CHART BUILDERS ──────────────────────────────────────────────────────────
+const COLORS = { gold:'#C8963A', blue:'#5b8dee', green:'#4caf7d', red:'#e05555', purple:'#9b7fe8' };
+
+function buildLine(id, labels, datasets, yLabel='', opts={}) {
+  if(charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend: datasets.length>1
+          ? {display:true,labels:{color:'#8a7f6e',font:{family:"'DM Mono',monospace",size:9},boxWidth:10,padding:10}}
+          : {display:false},
+        tooltip:{backgroundColor:'#1c1c1c',borderColor:'rgba(200,150,58,.4)',borderWidth:1,titleColor:'#C8963A',bodyColor:'#e8e0d0',padding:10}
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{maxTicksLimit:8,maxRotation:0}},
+        y:{grid:{color:'rgba(255,255,255,.06)'},ticks:{callback:v=>v+(yLabel?' '+yLabel:'')}}
+      },
+      ...opts
+    }
+  });
+}
+
+function buildBar(id, labels, values, color='#C8963A') {
+  if(charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  const cols = values.map(v=>v>=0?color:'#e05555');
+  charts[id] = new Chart(ctx, {
+    type:'bar',
+    data:{labels,datasets:[{data:values,backgroundColor:cols,borderRadius:2,borderWidth:0}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c1c1c',borderColor:'rgba(200,150,58,.4)',borderWidth:1,titleColor:'#C8963A',bodyColor:'#e8e0d0',padding:10}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{maxTicksLimit:10,maxRotation:0}},
+        y:{grid:{color:'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+function mkGrad(ctx, color, h=190) {
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, color.replace(')',',0.35)').replace('rgb','rgba'));
+  g.addColorStop(1, color.replace(')',',0)').replace('rgb','rgba'));
+  return g;
+}
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgb(${r},${g},${b})`;}
+function grad(canvasId, color) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const g = ctx.createLinearGradient(0,0,0,190);
+  const rgb = hexToRgb(color);
+  g.addColorStop(0, rgb.replace('rgb','rgba').replace(')',',0.3)'));
+  g.addColorStop(1, rgb.replace('rgb','rgba').replace(')',',0)'));
+  return g;
+}
+function ds(label,data,color,fill=true,canvasId='') {
+  return {label,data,borderColor:color,backgroundColor:fill&&canvasId?grad(canvasId,color):fill?color+'44':'transparent',borderWidth:2,fill,tension:0.3,pointRadius:0,pointHoverRadius:4};
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function setTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(!tabLoaded[name]) { loadTab(name); tabLoaded[name]=true; }
+}
+
+// ─── RELOAD CHART ─────────────────────────────────────────────────────────────
+const chartDefs = {
+  ipca:  {fn:(m)=>loadIPCA(m),    loadId:'load-ipca',   chartId:'chart-ipca'},
+  selic: {fn:(m)=>loadSELIC(m),   loadId:'load-selic',  chartId:'chart-selic'},
+  cred:  {fn:(m)=>loadCredVol(m), loadId:'load-cred',   chartId:'chart-cred'},
+  inad:  {fn:(m)=>loadInad(m),    loadId:'load-inad',   chartId:'chart-inad'},
+  divida:{fn:(m)=>loadDivida(m),  loadId:'load-divida', chartId:'chart-divida'},
+  primario:{fn:(m)=>loadPrimario(m),loadId:'load-primario',chartId:'chart-primario'},
+  ibc:   {fn:(m)=>loadIBC(m),     loadId:'load-ibc',    chartId:'chart-ibc'},
+  balanca:{fn:(m)=>loadBalanca(m),loadId:'load-balanca',chartId:'chart-balanca'},
+  ptax:  {fn:(m)=>loadPTAX(m),    loadId:'load-ptax',   chartId:'chart-ptax'},
+  eur:   {fn:(m)=>loadEUR(m),     loadId:'load-eur',    chartId:'chart-eur'},
+};
+
+function reloadChart(name, months, btn) {
+  const def = chartDefs[name];
+  if(!def) return;
+  btn.closest('.period-btns').querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(def.loadId).style.display='flex';
+  document.getElementById(def.chartId).style.display='none';
+  def.fn(months);
+}
+
+// ─── TAB MACRO ────────────────────────────────────────────────────────────────
+const tblData = {};
+
+async function loadMacro() {
+  await Promise.allSettled([
+    loadIPCA(1), loadSELIC(2), loadCompInf(), loadCDI()
+  ]);
+}
+
+async function loadIPCA(months=1) {
+  try {
+    const d = await bcb(433, months*12);
+    const thin = thinData(d);
+    buildBar('chart-ipca', thin.map(x=>fmt(x.data)), thin.map(x=>parseFloat(x.valor)));
+    showC('chart-ipca','load-ipca');
+    const last=d[d.length-1];
+    document.getElementById('k-ipca').textContent = fmtNum(last.valor);
+    setKPI('k-ipca','','','');
+    document.getElementById('ks-ipca').textContent = `Ref: ${fmt(last.data)}`;
+    document.getElementById('t-ipca').textContent = fmtNum(last.valor);
+    const a12 = acum12(d); const a6 = acum6(d);
+    document.getElementById('k-ipca12').textContent = fmtNum(a12);
+    document.getElementById('ks-ipca12').textContent = 'Últ. 12 leituras';
+    tblData['IPCA'] = {ultimo:last.valor, a12, a6};
+    renderTable();
+  } catch(e){console.error('IPCA',e);}
+}
+
+async function loadSELIC(months=2) {
+  try {
+    const d = await bcb(432, months*12);
+    const thin = thinData(d);
+    buildLine('chart-selic', thin.map(x=>fmt(x.data)),
+      [ds('SELIC',thin.map(x=>parseFloat(x.valor)),COLORS.blue,true,'chart-selic')], '%');
+    showC('chart-selic','load-selic');
+    const last=d[d.length-1];
+    document.getElementById('k-selic').textContent = fmtNum(last.valor);
+    document.getElementById('ks-selic').textContent = `Ref: ${fmt(last.data)}`;
+    document.getElementById('t-selic').textContent = fmtNum(last.valor);
+  } catch(e){console.error('SELIC',e);}
+}
+
+async function loadCDI() {
+  try {
+    const d = await bcb(4389, 3);
+    const last=d[d.length-1];
+    document.getElementById('k-cdi').textContent = fmtNum(last.valor);
+    document.getElementById('ks-cdi').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('CDI',e);}
+}
+
+async function loadCompInf() {
+  try {
+    const [igpm, inpc] = await Promise.all([bcb(189,24), bcb(188,24)]);
+    const labels = igpm.map(x=>fmt(x.data));
+    buildLine('chart-comp', labels, [
+      ds('IGP-M',igpm.map(x=>parseFloat(x.valor)),COLORS.gold,false),
+      ds('INPC', inpc.map(x=>parseFloat(x.valor)),COLORS.green,false)
+    ], '%');
+    showC('chart-comp','load-comp');
+    const lastIG=igpm[igpm.length-1], lastIN=inpc[inpc.length-1];
+    document.getElementById('k-igpm').textContent = fmtNum(lastIG.valor);
+    document.getElementById('ks-igpm').textContent = `Ref: ${fmt(lastIG.data)}`;
+    document.getElementById('t-igpm').textContent = fmtNum(lastIG.valor);
+    document.getElementById('k-inpc').textContent = fmtNum(lastIN.valor);
+    document.getElementById('ks-inpc').textContent = `Ref: ${fmt(lastIN.data)}`;
+    tblData['IGP-M'] = {ultimo:lastIG.valor, a12:acum12(igpm), a6:acum6(igpm)};
+    tblData['INPC']  = {ultimo:lastIN.valor, a12:acum12(inpc), a6:acum6(inpc)};
+    renderTable();
+  } catch(e){console.error('CompInf',e);}
+}
+
+function renderTable() {
+  const rows = ['IPCA','INPC','IGP-M'].filter(k=>tblData[k]);
+  if(!rows.length) return;
+  document.getElementById('tabela-body').innerHTML = rows.map(n=>{
+    const {ultimo,a12,a6}=tblData[n];
+    const u=parseFloat(ultimo), cls=u>0.5?'up':u<0?'down':'neu';
+    const trend=u>0.5?'▲':u<0?'▼':'→';
+    return `<tr>
+      <td style="color:var(--gold);font-weight:500">${n}</td>
+      <td class="${cls}">${fmtNum(ultimo)}%</td>
+      <td class="neu">${fmtNum(a12)}%</td>
+      <td>${fmtNum(a6)}%</td>
+      <td class="${cls}">${trend}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('load-tabela').style.display='none';
+  document.getElementById('tabela-acum').style.display='table';
+}
+
+// ─── TAB CRÉDITO ──────────────────────────────────────────────────────────────
+async function loadCredito() {
+  await Promise.allSettled([loadCredVol(24), loadInad(24), loadJurosPF(), loadConcess()]);
+}
+
+async function loadCredVol(months=24) {
+  try {
+    const [tot,pf,pj]=await Promise.all([bcb(20541,months),bcb(20542,months),bcb(20543,months)]);
+    const t=thinData(tot), labels=t.map(x=>fmt(x.data));
+    buildLine('chart-cred',labels,[
+      ds('Total',t.map(x=>parseFloat(x.valor)/1000),COLORS.gold,false),
+      ds('PF',thinData(pf).map(x=>parseFloat(x.valor)/1000),COLORS.blue,false),
+      ds('PJ',thinData(pj).map(x=>parseFloat(x.valor)/1000),COLORS.purple,false)
+    ],'R$bi');
+    showC('chart-cred','load-cred');
+    const lt=tot[tot.length-1],lp=pf[pf.length-1],lj=pj[pj.length-1];
+    document.getElementById('k-cred-total').textContent = fmtNum(parseFloat(lt.valor)/1000,0);
+    document.getElementById('ks-cred-total').textContent = `Ref: ${fmt(lt.data)}`;
+    document.getElementById('t-cred').textContent = fmtNum(parseFloat(lt.valor)/1000,0);
+    document.getElementById('k-cred-pf').textContent = fmtNum(parseFloat(lp.valor)/1000,0);
+    document.getElementById('ks-cred-pf').textContent = `Ref: ${fmt(lp.data)}`;
+    document.getElementById('k-cred-pj').textContent = fmtNum(parseFloat(lj.valor)/1000,0);
+    document.getElementById('ks-cred-pj').textContent = `Ref: ${fmt(lj.data)}`;
+  } catch(e){console.error('Cred',e);}
+}
+
+async function loadInad(months=24) {
+  try {
+    const [tot,pf,pj]=await Promise.all([bcb(21082,months),bcb(21083,months),bcb(21084,months)]);
+    const t=thinData(tot), labels=t.map(x=>fmt(x.data));
+    buildLine('chart-inad',labels,[
+      ds('Total',t.map(x=>parseFloat(x.valor)),COLORS.red,false),
+      ds('PF',thinData(pf).map(x=>parseFloat(x.valor)),COLORS.gold,false),
+      ds('PJ',thinData(pj).map(x=>parseFloat(x.valor)),COLORS.purple,false)
+    ],'%');
+    showC('chart-inad','load-inad');
+    const lt=tot[tot.length-1],lp=pf[pf.length-1];
+    document.getElementById('k-inad-total').textContent = fmtNum(lt.valor);
+    document.getElementById('ks-inad-total').textContent = `Ref: ${fmt(lt.data)}`;
+    document.getElementById('t-inad').textContent = fmtNum(lt.valor);
+    document.getElementById('k-inad-pf').textContent = fmtNum(lp.valor);
+    document.getElementById('ks-inad-pf').textContent = `Ref: ${fmt(lp.data)}`;
+  } catch(e){console.error('Inad',e);}
+}
+
+async function loadJurosPF() {
+  try {
+    const d=await bcb(20714,24), thin=thinData(d);
+    buildLine('chart-jurosPF',thin.map(x=>fmt(x.data)),
+      [ds('Juros PF',thin.map(x=>parseFloat(x.valor)),COLORS.red,true,'chart-jurosPF')],'% a.a.');
+    showC('chart-jurosPF','load-jurosPF');
+  } catch(e){console.error('JurosPF',e);}
+}
+
+async function loadConcess() {
+  try {
+    const d=await bcb(20631,24), thin=thinData(d);
+    buildLine('chart-concess',thin.map(x=>fmt(x.data)),
+      [ds('Concessões',thin.map(x=>parseFloat(x.valor)/1000),COLORS.blue,true,'chart-concess')],'R$bi');
+    showC('chart-concess','load-concess');
+  } catch(e){console.error('Concess',e);}
+}
+
+// ─── TAB FISCAL ───────────────────────────────────────────────────────────────
+async function loadFiscal() {
+  await Promise.allSettled([loadDivida(36),loadPrimario(24),loadDivLiq(),loadNominal()]);
+}
+
+async function loadDivida(months=36) {
+  try {
+    const d=await bcb(13762,months), thin=thinData(d);
+    buildLine('chart-divida',thin.map(x=>fmt(x.data)),
+      [ds('Dív. Bruta/PIB',thin.map(x=>parseFloat(x.valor)),COLORS.purple,true,'chart-divida')],'%');
+    showC('chart-divida','load-divida');
+    const last=d[d.length-1];
+    document.getElementById('k-divida').textContent = fmtNum(last.valor);
+    document.getElementById('ks-divida').textContent = `Ref: ${fmt(last.data)}`;
+    document.getElementById('t-divida').textContent = fmtNum(last.valor);
+  } catch(e){console.error('Divida',e);}
+}
+
+async function loadPrimario(months=24) {
+  try {
+    const d=await bcb(5793,months), thin=thinData(d);
+    buildBar('chart-primario',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)/1000));
+    // fix yLabel
+    if(charts['chart-primario']){
+      charts['chart-primario'].options.scales.y.ticks.callback=v=>v+'bi';
+      charts['chart-primario'].update();
+    }
+    showC('chart-primario','load-primario');
+    const last=d[d.length-1];
+    document.getElementById('k-primario').textContent = fmtNum(parseFloat(last.valor)/1000,1);
+    document.getElementById('ks-primario').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('Primario',e);}
+}
+
+async function loadDivLiq() {
+  try {
+    const d=await bcb(4513,60), thin=thinData(d);
+    buildLine('chart-divliq',thin.map(x=>fmt(x.data)),
+      [ds('Dív. Líq/PIB',thin.map(x=>parseFloat(x.valor)),COLORS.purple,true,'chart-divliq')],'%');
+    showC('chart-divliq','load-divliq');
+    const last=d[d.length-1];
+    document.getElementById('k-divliq').textContent = fmtNum(last.valor);
+    document.getElementById('ks-divliq').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('DivLiq',e);}
+}
+
+async function loadNominal() {
+  try {
+    const d=await bcb(5800,24), thin=thinData(d);
+    buildBar('chart-nominal',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)/1000));
+    showC('chart-nominal','load-nominal');
+    const last=d[d.length-1];
+    document.getElementById('k-nominal').textContent = fmtNum(parseFloat(last.valor)/1000,1)+'bi';
+    document.getElementById('ks-nominal').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('Nominal',e);}
+}
+
+// ─── TAB ATIVIDADE ────────────────────────────────────────────────────────────
+async function loadAtividade() {
+  await Promise.allSettled([loadIBC(24),loadBalanca(24),loadInd(),loadTC()]);
+}
+
+async function loadIBC(months=24) {
+  try {
+    const d=await bcb(24363,months), thin=thinData(d);
+    buildLine('chart-ibc',thin.map(x=>fmt(x.data)),
+      [ds('IBC-Br',thin.map(x=>parseFloat(x.valor)),COLORS.green,true,'chart-ibc')],'');
+    showC('chart-ibc','load-ibc');
+    const last=d[d.length-1];
+    document.getElementById('k-ibc').textContent = fmtNum(last.valor,1);
+    document.getElementById('ks-ibc').textContent = `Ref: ${fmt(last.data)}`;
+    document.getElementById('t-ibc').textContent = fmtNum(last.valor,1);
+  } catch(e){console.error('IBC',e);}
+}
+
+async function loadBalanca(months=24) {
+  try {
+    const [exp,imp]=await Promise.all([bcb(22707,months),bcb(22708,months)]);
+    const thin=thinData(exp), labels=thin.map(x=>fmt(x.data));
+    buildLine('chart-balanca',labels,[
+      ds('Exportações',thin.map(x=>parseFloat(x.valor)),COLORS.green,false),
+      ds('Importações',thinData(imp).map(x=>parseFloat(x.valor)),COLORS.red,false)
+    ],'US$M');
+    showC('chart-balanca','load-balanca');
+    const le=exp[exp.length-1],li=imp[imp.length-1];
+    document.getElementById('k-exp').textContent = fmtNum(le.valor,0);
+    document.getElementById('ks-exp').textContent = `Ref: ${fmt(le.data)}`;
+    document.getElementById('k-imp').textContent = fmtNum(li.valor,0);
+    document.getElementById('ks-imp').textContent = `Ref: ${fmt(li.data)}`;
+  } catch(e){console.error('Balanca',e);}
+}
+
+async function loadInd() {
+  try {
+    const d=await bcb(21859,36), thin=thinData(d);
+    buildLine('chart-ind',thin.map(x=>fmt(x.data)),
+      [ds('Prod. Industrial',thin.map(x=>parseFloat(x.valor)),COLORS.gold,true,'chart-ind')],'');
+    showC('chart-ind','load-ind');
+    const last=d[d.length-1];
+    document.getElementById('k-ind').textContent = fmtNum(last.valor,1);
+    document.getElementById('ks-ind').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('Ind',e);}
+}
+
+async function loadTC() {
+  try {
+    const d=await bcb(22800,24), thin=thinData(d);
+    buildBar('chart-tc',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)));
+    showC('chart-tc','load-tc');
+  } catch(e){console.error('TC',e);}
+}
+
+// ─── TAB CÂMBIO ───────────────────────────────────────────────────────────────
+async function loadCambio() {
+  await Promise.allSettled([loadPTAX(6),loadEUR(12),loadReservas(),loadM1()]);
+}
+
+async function loadPTAX(months=6) {
+  try {
+    const d=await bcb(1,months), thin=thinData(d,80);
+    buildLine('chart-ptax',thin.map(x=>fmt(x.data)),
+      [ds('USD/BRL',thin.map(x=>parseFloat(x.valor)),COLORS.green,true,'chart-ptax')],'R$');
+    showC('chart-ptax','load-ptax');
+    const last=d[d.length-1];
+    document.getElementById('k-ptax').textContent = fmtNum(last.valor,4);
+    document.getElementById('ks-ptax').textContent = `Ref: ${last.data}`;
+    document.getElementById('t-ptax').textContent = fmtNum(last.valor,3);
+  } catch(e){console.error('PTAX',e);}
+}
+
+async function loadEUR(months=12) {
+  try {
+    const d=await bcb(21619,months), thin=thinData(d,80);
+    buildLine('chart-eur',thin.map(x=>fmt(x.data)),
+      [ds('EUR/BRL',thin.map(x=>parseFloat(x.valor)),COLORS.gold,true,'chart-eur')],'R$');
+    showC('chart-eur','load-eur');
+    const last=d[d.length-1];
+    document.getElementById('k-eur').textContent = fmtNum(last.valor,4);
+    document.getElementById('ks-eur').textContent = `Ref: ${last.data}`;
+  } catch(e){console.error('EUR',e);}
+}
+
+async function loadReservas() {
+  try {
+    const d=await bcb(13621,60), thin=thinData(d);
+    buildLine('chart-reservas',thin.map(x=>fmt(x.data)),
+      [ds('Reservas',thin.map(x=>parseFloat(x.valor)/1000),COLORS.blue,true,'chart-reservas')],'US$bi');
+    showC('chart-reservas','load-reservas');
+    const last=d[d.length-1];
+    document.getElementById('k-reservas').textContent = fmtNum(parseFloat(last.valor)/1000,0);
+    document.getElementById('ks-reservas').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('Reservas',e);}
+}
+
+async function loadM1() {
+  try {
+    const d=await bcb(27789,24), thin=thinData(d);
+    buildLine('chart-m1',thin.map(x=>fmt(x.data)),
+      [ds('M1',thin.map(x=>parseFloat(x.valor)/1000),COLORS.blue,true,'chart-m1')],'R$bi');
+    showC('chart-m1','load-m1');
+    const last=d[d.length-1];
+    document.getElementById('k-m1').textContent = fmtNum(parseFloat(last.valor)/1000,0);
+    document.getElementById('ks-m1').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('M1',e);}
+}
+
+// ─── LOAD TAB ─────────────────────────────────────────────────────────────────
+function loadTab(name) {
+  if(name==='macro') loadMacro();
+  if(name==='credito') loadCredito();
+  if(name==='fiscal') loadFiscal();
+  if(name==='atividade') loadAtividade();
+  if(name==='cambio') loadCambio();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+async function init() {
+  document.getElementById('update-time').innerHTML =
+    `<span class="live-dot"></span>Atualizado: ${new Date().toLocaleString('pt-BR')}`;
+  tabLoaded.macro = true;
+  loadMacro();
+}
+init();
+</script>
+</body>
+</html>
