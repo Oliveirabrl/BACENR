@@ -231,7 +231,7 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
   <div class="grid-2">
     <div class="panel">
       <div class="panel-header">
-        <div><div class="panel-title">Volume de Crédito</div><div class="panel-sub">TOTAL · PF · PJ — R$ BILHÕES · SÉRIES 20541/20542/20543</div></div>
+        <div><div class="panel-title">Volume de Crédito</div><div class="panel-sub">TOTAL · PF · PJ — R$ BILHÕES · SÉRIES 20539/20541/20540</div></div>
         <div class="period-btns">
           <span class="pbtn active" onclick="reloadChart('cred',2,this)">2A</span>
           <span class="pbtn" onclick="reloadChart('cred',5,this)">5A</span>
@@ -252,7 +252,7 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
   </div>
   <div class="grid-2">
     <div class="panel">
-      <div class="panel-header"><div><div class="panel-title">Taxa Média de Juros — Crédito PF</div><div class="panel-sub">% A.A. · SÉRIE 20714</div></div></div>
+      <div class="panel-header"><div><div class="panel-title">Taxa Média de Juros — Crédito</div><div class="panel-sub">TOTAL · PF · PJ — % A.A. · SÉRIES 20714/20716/20715</div></div></div>
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-jurosPF" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-jurosPF" style="display:none"></canvas></div>
     </div>
     <div class="panel">
@@ -326,7 +326,7 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
     </div>
     <div class="panel">
       <div class="panel-header">
-        <div><div class="panel-title">Balança Comercial</div><div class="panel-sub">EXPORTAÇÕES vs IMPORTAÇÕES · SÉRIES 22707/22708</div></div>
+        <div><div class="panel-title">Balança Comercial</div><div class="panel-sub">EXPORTAÇÕES · IMPORTAÇÕES · SÉRIES 22708/22709 — US$ MILHÕES</div></div>
         <div class="period-btns">
           <span class="pbtn active" onclick="reloadChart('balanca',2,this)">2A</span>
           <span class="pbtn" onclick="reloadChart('balanca',5,this)">5A</span>
@@ -875,7 +875,8 @@ async function loadCredito() {
 
 async function loadCredVol(months=24) {
   try {
-    const [tot,pf,pj]=await Promise.all([bcb(20541,months),bcb(20542,months),bcb(20543,months)]);
+    // 20539=Total, 20541=PF, 20540=PJ (todos recursos livres + direcionados)
+    const [tot,pf,pj]=await Promise.all([bcb(20539,months),bcb(20541,months),bcb(20540,months)]);
     const t=thinData(tot), labels=t.map(x=>fmt(x.data));
     buildLine('chart-cred',labels,[
       ds('Total',t.map(x=>parseFloat(x.valor)/1000),COLORS.gold,false),
@@ -896,7 +897,7 @@ async function loadCredVol(months=24) {
 
 async function loadInad(months=24) {
   try {
-    const [tot,pf,pj]=await Promise.all([bcb(21082,months),bcb(21083,months),bcb(21084,months)]);
+    const [tot,pj,pf]=await Promise.all([bcb(21082,months),bcb(21083,months),bcb(21084,months)]);
     const t=thinData(tot), labels=t.map(x=>fmt(x.data));
     buildLine('chart-inad',labels,[
       ds('Total',t.map(x=>parseFloat(x.valor)),COLORS.red,false),
@@ -915,9 +916,14 @@ async function loadInad(months=24) {
 
 async function loadJurosPF() {
   try {
-    const d=await bcb(20714,24), thin=thinData(d);
-    buildLine('chart-jurosPF',thin.map(x=>fmt(x.data)),
-      [ds('Juros PF',thin.map(x=>parseFloat(x.valor)),COLORS.red,true,'chart-jurosPF')],'% a.a.');
+    // 20714=Total, 20716=PF, 20715=PJ
+    const [tot,pf,pj]=await Promise.all([bcb(20714,24),bcb(20716,24),bcb(20715,24)]);
+    const thin=thinData(tot);
+    buildLine('chart-jurosPF',thin.map(x=>fmt(x.data)),[
+      ds('Total',thin.map(x=>parseFloat(x.valor)),COLORS.gold,false),
+      ds('PF',thinData(pf).map(x=>parseFloat(x.valor)),COLORS.blue,false),
+      ds('PJ',thinData(pj).map(x=>parseFloat(x.valor)),COLORS.purple,false)
+    ],'% a.a.');
     showC('chart-jurosPF','load-jurosPF');
   } catch(e){console.error('JurosPF',e);}
 }
@@ -1008,7 +1014,8 @@ async function loadIBC(months=24) {
 
 async function loadBalanca(months=24) {
   try {
-    const [exp,imp]=await Promise.all([bcb(22707,months),bcb(22708,months)]);
+    // 22708=Exportações, 22709=Importações (22707=saldo, usado na aba Balanço de Pagamentos)
+    const [exp,imp]=await Promise.all([bcb(22708,months),bcb(22709,months)]);
     const thin=thinData(exp), labels=thin.map(x=>fmt(x.data));
     buildLine('chart-balanca',labels,[
       ds('Exportações',thin.map(x=>parseFloat(x.valor)),COLORS.green,false),
@@ -1392,7 +1399,7 @@ async function loadTicker() {
     document.getElementById('t-ibc').textContent = fmtNum(last.valor,1);
   } catch(e){}
   try {
-    const cred = await bcb(20541, 3);
+    const cred = await bcb(20539, 3);
     const last = cred[cred.length-1];
     document.getElementById('t-cred').textContent = fmtNum(parseFloat(last.valor)/1000,0);
   } catch(e){}
