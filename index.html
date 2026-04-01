@@ -163,6 +163,9 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
   <div class="tab-btn" onclick="setTab('fiscal')"><span class="tab-icon">🏛</span> Fiscal</div>
   <div class="tab-btn" onclick="setTab('atividade')"><span class="tab-icon">⚡</span> Atividade Econômica</div>
   <div class="tab-btn" onclick="setTab('cambio')"><span class="tab-icon">💱</span> Câmbio & Liquidez</div>
+  <div class="tab-btn" onclick="setTab('balpag')"><span class="tab-icon">🌐</span> Balanço de Pagamentos</div>
+  <div class="tab-btn" onclick="setTab('ifdata')"><span class="tab-icon">📋</span> IFdata</div>
+  <div class="tab-btn" onclick="setTab('instituicoes')"><span class="tab-icon">🏦</span> Instituições</div>
 </div>
 
 <!-- ═══════════════════ ABA MACRO ═══════════════════ -->
@@ -388,6 +391,203 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
   </div>
 </div>
 
+<!-- ═══════════════════ ABA BALANÇO DE PAGAMENTOS ═══════════════════ -->
+<div class="tab-content" id="tab-balpag">
+  <div class="kpi-row kpi-row-4">
+    <div class="kpi-card"><div class="kpi-label">Transações Correntes</div><div class="kpi-value" id="k-tc">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-tc">—</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Balança Comercial</div><div class="kpi-value green" id="k-bc">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-bc">—</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Serviços (Saldo)</div><div class="kpi-value red" id="k-serv">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-serv">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Investimento Direto</div><div class="kpi-value blue" id="k-idp">—</div><div class="kpi-unit">US$ milhões</div><div class="kpi-sub" id="ks-idp">—</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Transações Correntes — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22800</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('bptc',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bptc',5,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('bptc',10,this)">10A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-bptc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bptc" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Balança Comercial — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22801</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('bpbc',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpbc',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-bpbc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpbc" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Conta Financeira</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22806</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('bpcf',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpcf',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bpcf" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpcf" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Investimento Direto no País (IDP)</div><div class="panel-sub">US$ MILHÕES · SÉRIE 23460</div></div>
+        <div class="period-btns">
+          <span class="pbtn active" onclick="reloadChart('bpidp',2,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpidp',5,this)">5A</span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bpidp" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpidp" style="display:none"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Serviços — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22802</div></div>
+      </div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bpserv" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpserv" style="display:none"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Renda Primária — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22803</div></div>
+      </div>
+      <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bprenda" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bprenda" style="display:none"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA IFDATA ═══════════════════ -->
+<div class="tab-content" id="tab-ifdata">
+  <div style="margin-bottom:16px;">
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">IFdata — Relatórios Financeiros Institucionais</div>
+          <div class="panel-sub">API OLINDA · BANCO CENTRAL · 16 RELATÓRIOS DISPONÍVEIS</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:16px;">
+        <div>
+          <div class="kpi-label" style="margin-bottom:5px;">Relatório</div>
+          <select id="if-relatorio" style="width:100%;background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:7px 10px;">
+            <option value="1">1 — Resumo</option>
+            <option value="2">2 — Ativo Total</option>
+            <option value="3">3 — Carteira de Crédito</option>
+            <option value="4">4 — Crédito por Risco</option>
+            <option value="5">5 — Crédito por Indexador</option>
+            <option value="6">6 — Crédito por Prazo</option>
+            <option value="7">7 — Crédito por Porte</option>
+            <option value="8">8 — Crédito por Região</option>
+            <option value="9">9 — Crédito por Atividade Econômica (CNAE)</option>
+            <option value="10">10 — Passivo Total</option>
+            <option value="11">11 — Patrimônio Líquido</option>
+            <option value="12" selected>12 — DRE — Resultado</option>
+            <option value="13">13 — Câmbio</option>
+            <option value="14">14 — Derivativos</option>
+            <option value="15">15 — TVM</option>
+            <option value="16">16 — Liquidez</option>
+          </select>
+        </div>
+        <div>
+          <div class="kpi-label" style="margin-bottom:5px;">Tipo Instituição</div>
+          <select id="if-tipo" style="width:100%;background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:7px 10px;">
+            <option value="2">Banco Múltiplo</option>
+            <option value="1">Banco Comercial</option>
+            <option value="3">Caixa Econômica</option>
+            <option value="5">Banco de Desenvolvimento</option>
+            <option value="13">Cooperativa de Crédito</option>
+            <option value="7">Financeira</option>
+            <option value="8">Consórcio</option>
+          </select>
+        </div>
+        <div>
+          <div class="kpi-label" style="margin-bottom:5px;">Ano</div>
+          <select id="if-ano" style="width:100%;background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:7px 10px;" id="if-ano"></select>
+        </div>
+        <div>
+          <div class="kpi-label" style="margin-bottom:5px;">Trimestre</div>
+          <select id="if-mes" style="width:100%;background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:7px 10px;">
+            <option value="3">T1 — Março</option>
+            <option value="6">T2 — Junho</option>
+            <option value="9">T3 — Setembro</option>
+            <option value="12" selected>T4 — Dezembro</option>
+          </select>
+        </div>
+        <div>
+          <div class="kpi-label" style="margin-bottom:5px;">&nbsp;</div>
+          <button onclick="consultarIFdata()" style="background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.08em;padding:7px 20px;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(200,150,58,.3)'" onmouseout="this.style.background='var(--gold-dim)'">CONSULTAR</button>
+        </div>
+      </div>
+      <div id="if-status" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:10px;display:none;"></div>
+      <div id="load-ifdata" class="loading-state" style="height:200px;display:none"><div class="spinner"></div><div class="loading-text">CONSULTANDO OLINDA/IFDATA...</div></div>
+      <div id="if-kpis" style="display:none;margin-bottom:14px;" class="kpi-row kpi-row-4">
+        <div class="kpi-card blue"><div class="kpi-label">Total Instituições</div><div class="kpi-value blue" id="ifk-total">—</div><div class="kpi-unit">no período</div></div>
+        <div class="kpi-card"><div class="kpi-label">Maior Valor</div><div class="kpi-value" id="ifk-maior">—</div><div class="kpi-unit">R$ mil</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Soma Total</div><div class="kpi-value green" id="ifk-soma">—</div><div class="kpi-unit">R$ bilhões</div></div>
+        <div class="kpi-card"><div class="kpi-label">Período</div><div class="kpi-value" id="ifk-periodo" style="font-size:20px">—</div><div class="kpi-unit">referência</div></div>
+      </div>
+      <div id="if-resultado" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+            <table class="data-table" id="if-tabela">
+              <thead><tr><th>#</th><th>Instituição</th><th>Segmento</th><th>Valor (R$ mil)</th></tr></thead>
+              <tbody id="if-tbody"></tbody>
+            </table>
+          </div>
+          <div>
+            <div style="height:360px;position:relative;"><canvas id="chart-ifdata"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABA INSTITUIÇÕES ═══════════════════ -->
+<div class="tab-content" id="tab-instituicoes">
+  <div class="kpi-row kpi-row-4" id="inst-kpis" style="margin-bottom:16px;">
+    <div class="kpi-card blue"><div class="kpi-label">Total Reguladas</div><div class="kpi-value blue" id="ik-total">—</div><div class="kpi-unit">instituições</div></div>
+    <div class="kpi-card"><div class="kpi-label">Bancos</div><div class="kpi-value" id="ik-bancos">—</div><div class="kpi-unit">comerciais + múltiplos</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Cooperativas</div><div class="kpi-value green" id="ik-coops">—</div><div class="kpi-unit">de crédito</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Financeiras</div><div class="kpi-value purple" id="ik-fin">—</div><div class="kpi-unit">e demais</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Instituições Reguladas pelo Banco Central</div>
+        <div class="panel-sub">API OLINDA · INSTITUIÇÕES EM FUNCIONAMENTO · DADOS AO VIVO</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="inst-busca" type="text" placeholder="Buscar instituição..." oninput="filtrarInst()" style="background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;width:200px;">
+        <select id="inst-tipo" onchange="filtrarInst()" style="background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;">
+          <option value="">Todos os tipos</option>
+          <option value="Banco Múltiplo">Banco Múltiplo</option>
+          <option value="Banco Comercial">Banco Comercial</option>
+          <option value="Cooperativa de Crédito">Cooperativa</option>
+          <option value="Financeira">Financeira</option>
+          <option value="Banco de Desenvolvimento">Banco Desenvolvimento</option>
+          <option value="Caixa Econômica">Caixa Econômica</option>
+        </select>
+        <select id="inst-uf" onchange="filtrarInst()" style="background:var(--ink3);border:1px solid var(--gold-line);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;">
+          <option value="">Todos os estados</option>
+        </select>
+      </div>
+    </div>
+    <div id="load-inst" class="loading-state" style="height:200px"><div class="spinner"></div><div class="loading-text">CONSULTANDO OLINDA...</div></div>
+    <div id="inst-count" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);margin-bottom:8px;display:none;"></div>
+    <div style="overflow-x:auto;max-height:480px;overflow-y:auto;">
+      <table class="data-table" id="inst-tabela" style="display:none">
+        <thead><tr><th>#</th><th>CNPJ</th><th>Nome</th><th>Tipo</th><th>UF Sede</th><th>Município</th><th>Data Início</th></tr></thead>
+        <tbody id="inst-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo"><span class="fs">OS</span><span class="fsep"></span><span class="fc">CAPITAL</span></div>
@@ -401,7 +601,7 @@ Chart.defaults.color = '#8a7f6e';
 Chart.defaults.font.family = "'DM Mono', monospace";
 Chart.defaults.font.size = 10;
 const charts = {};
-const tabLoaded = {macro:false,credito:false,fiscal:false,atividade:false,cambio:false};
+const tabLoaded = {macro:false,credito:false,fiscal:false,atividade:false,cambio:false,balpag:false,ifdata:false,instituicoes:false};
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 const fmt = (d) => { const [dd,mm,yyyy]=d.split('/'); return `${mm}/${yyyy}`; };
@@ -525,7 +725,10 @@ const chartDefs = {
   primario:{fn:(m)=>loadPrimario(m),loadId:'load-primario',chartId:'chart-primario'},
   ibc:   {fn:(m)=>loadIBC(m),     loadId:'load-ibc',    chartId:'chart-ibc'},
   balanca:{fn:(m)=>loadBalanca(m),loadId:'load-balanca',chartId:'chart-balanca'},
-  ptax:  {fn:(m)=>loadPTAX(m),    loadId:'load-ptax',   chartId:'chart-ptax'},
+  bptc:  {fn:(m)=>loadBPTC(m),  loadId:'load-bptc',  chartId:'chart-bptc'},
+  bpbc:  {fn:(m)=>loadBPBC(m),  loadId:'load-bpbc',  chartId:'chart-bpbc'},
+  bpcf:  {fn:(m)=>loadBPCF(m),  loadId:'load-bpcf',  chartId:'chart-bpcf'},
+  bpidp: {fn:(m)=>loadBPIDP(m), loadId:'load-bpidp', chartId:'chart-bpidp'},
   eur:   {fn:(m)=>loadEUR(m),     loadId:'load-eur',    chartId:'chart-eur'},
 };
 
@@ -866,6 +1069,247 @@ function loadTab(name) {
   if(name==='fiscal') loadFiscal();
   if(name==='atividade') loadAtividade();
   if(name==='cambio') loadCambio();
+  if(name==='balpag') loadBalPag();
+  if(name==='ifdata') initIFdata();
+  if(name==='instituicoes') loadInstituicoes();
+}
+
+// ─── TAB BALANÇO DE PAGAMENTOS ───────────────────────────────────────────────
+async function loadBalPag() {
+  await Promise.allSettled([loadBPTC(24),loadBPBC(24),loadBPCF(24),loadBPIDP(24),loadBPServ(),loadBPRenda()]);
+}
+
+async function loadBPTC(months=24) {
+  try {
+    const d=await bcb(22800,months), thin=thinData(d);
+    buildBar('chart-bptc',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)));
+    if(charts['chart-bptc']){charts['chart-bptc'].options.scales.y.ticks.callback=v=>v+'M';charts['chart-bptc'].update();}
+    showC('chart-bptc','load-bptc');
+    const last=d[d.length-1];
+    document.getElementById('k-tc').textContent = fmtNum(last.valor,0);
+    document.getElementById('ks-tc').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('BPTC',e);}
+}
+
+async function loadBPBC(months=24) {
+  try {
+    const d=await bcb(22801,months), thin=thinData(d);
+    buildBar('chart-bpbc',thin.map(x=>fmt(x.data)),thin.map(x=>parseFloat(x.valor)));
+    showC('chart-bpbc','load-bpbc');
+    const last=d[d.length-1];
+    document.getElementById('k-bc').textContent = fmtNum(last.valor,0);
+    document.getElementById('ks-bc').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('BPBC',e);}
+}
+
+async function loadBPCF(months=24) {
+  try {
+    const d=await bcb(22806,months), thin=thinData(d);
+    buildLine('chart-bpcf',thin.map(x=>fmt(x.data)),
+      [ds('Conta Financeira',thin.map(x=>parseFloat(x.valor)),COLORS.blue,true,'chart-bpcf')],'US$M');
+    showC('chart-bpcf','load-bpcf');
+    const last=d[d.length-1];
+  } catch(e){console.error('BPCF',e);}
+}
+
+async function loadBPIDP(months=24) {
+  try {
+    const d=await bcb(23460,months), thin=thinData(d);
+    buildLine('chart-bpidp',thin.map(x=>fmt(x.data)),
+      [ds('IDP',thin.map(x=>parseFloat(x.valor)),COLORS.gold,true,'chart-bpidp')],'US$M');
+    showC('chart-bpidp','load-bpidp');
+    const last=d[d.length-1];
+    document.getElementById('k-idp').textContent = fmtNum(last.valor,0);
+    document.getElementById('ks-idp').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('BPIDP',e);}
+}
+
+async function loadBPServ() {
+  try {
+    const d=await bcb(22802,36), thin=thinData(d);
+    buildLine('chart-bpserv',thin.map(x=>fmt(x.data)),
+      [ds('Serviços',thin.map(x=>parseFloat(x.valor)),COLORS.red,true,'chart-bpserv')],'US$M');
+    showC('chart-bpserv','load-bpserv');
+    const last=d[d.length-1];
+    document.getElementById('k-serv').textContent = fmtNum(last.valor,0);
+    document.getElementById('ks-serv').textContent = `Ref: ${fmt(last.data)}`;
+  } catch(e){console.error('BPServ',e);}
+}
+
+async function loadBPRenda() {
+  try {
+    const d=await bcb(22803,36), thin=thinData(d);
+    buildLine('chart-bprenda',thin.map(x=>fmt(x.data)),
+      [ds('Renda Primária',thin.map(x=>parseFloat(x.valor)),COLORS.purple,true,'chart-bprenda')],'US$M');
+    showC('chart-bprenda','load-bprenda');
+  } catch(e){console.error('BPRenda',e);}
+}
+
+// ─── TAB IFDATA ───────────────────────────────────────────────────────────────
+const OLINDA = 'https://olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata';
+
+function initIFdata() {
+  // Preencher anos (últimos 10)
+  const sel = document.getElementById('if-ano');
+  const ano = new Date().getFullYear();
+  for(let y=ano; y>=ano-9; y--) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    if(y===ano-1) o.selected = true;
+    sel.appendChild(o);
+  }
+  consultarIFdata();
+}
+
+async function consultarIFdata() {
+  const rel  = document.getElementById('if-relatorio').value;
+  const tipo = document.getElementById('if-tipo').value;
+  const ano  = document.getElementById('if-ano').value || new Date().getFullYear()-1;
+  const mes  = document.getElementById('if-mes').value;
+
+  document.getElementById('load-ifdata').style.display='flex';
+  document.getElementById('if-resultado').style.display='none';
+  document.getElementById('if-kpis').style.display='none';
+  document.getElementById('if-status').style.display='none';
+
+  try {
+    const url = `${OLINDA}/IfDataValores?$format=json&$top=200&$filter=Relatorio%20eq%20${rel}%20and%20Ano%20eq%20${ano}%20and%20Mes%20eq%20${mes}%20and%20TipoInstituicao%20eq%20${tipo}&$orderby=Valor%20desc`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(r.status);
+    const json = await r.json();
+    const data = json.value || [];
+
+    if(!data.length) {
+      document.getElementById('load-ifdata').style.display='none';
+      document.getElementById('if-status').textContent = '⚠ Nenhum dado encontrado para os filtros selecionados.';
+      document.getElementById('if-status').style.display='block';
+      return;
+    }
+
+    // KPIs
+    const soma = data.reduce((a,d)=>a+(parseFloat(d.Valor)||0),0);
+    const maior = Math.max(...data.map(d=>parseFloat(d.Valor)||0));
+    document.getElementById('ifk-total').textContent = data.length;
+    document.getElementById('ifk-maior').textContent = fmtNum(maior/1000,1)+'bi';
+    document.getElementById('ifk-soma').textContent = fmtNum(soma/1000000,1);
+    document.getElementById('ifk-periodo').textContent = `${mes}/${ano}`;
+    document.getElementById('if-kpis').style.display='grid';
+
+    // Tabela
+    const top20 = data.slice(0,20);
+    document.getElementById('if-tbody').innerHTML = top20.map((d,i)=>{
+      const v = parseFloat(d.Valor)||0;
+      const cls = v>=0?'up':'down';
+      return `<tr>
+        <td style="color:var(--text-muted)">${i+1}</td>
+        <td style="color:var(--text);font-size:10px">${d.NomeInstituicao||d.InstituicaoNome||'—'}</td>
+        <td style="color:var(--text-dim);font-size:9px">${d.Segmento||d.SegmentoInstituicao||'—'}</td>
+        <td class="${cls}">${fmtNum(v,0)}</td>
+      </tr>`;
+    }).join('');
+
+    // Gráfico horizontal
+    if(charts['chart-ifdata']) charts['chart-ifdata'].destroy();
+    const top10 = data.slice(0,10);
+    const ctx = document.getElementById('chart-ifdata').getContext('2d');
+    charts['chart-ifdata'] = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels: top10.map(d=>(d.NomeInstituicao||'—').substring(0,18)),
+        datasets:[{
+          data: top10.map(d=>parseFloat(d.Valor)||0),
+          backgroundColor: top10.map(d=>(parseFloat(d.Valor)||0)>=0?'rgba(200,150,58,0.7)':'rgba(224,85,85,0.7)'),
+          borderRadius:3
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c1c1c',borderColor:'rgba(200,150,58,.4)',borderWidth:1,titleColor:'#C8963A',bodyColor:'#e8e0d0',padding:10}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,.06)'},ticks:{font:{size:9}}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{font:{size:9,family:"'DM Mono',monospace"}}}
+        }
+      }
+    });
+
+    document.getElementById('load-ifdata').style.display='none';
+    document.getElementById('if-resultado').style.display='block';
+
+  } catch(e) {
+    document.getElementById('load-ifdata').style.display='none';
+    document.getElementById('if-status').textContent = '⚠ Erro ao consultar a API IFdata. Tente outro período.';
+    document.getElementById('if-status').style.display='block';
+    console.error('IFdata',e);
+  }
+}
+
+// ─── TAB INSTITUIÇÕES ─────────────────────────────────────────────────────────
+const OLINDA_INST = 'https://olinda.bcb.gov.br/olinda/servico/Instituicoes_em_funcionamento/versao/v1/odata';
+let instData = [];
+
+async function loadInstituicoes() {
+  try {
+    const url = `${OLINDA_INST}/InstituicoesEmFuncionamento?$format=json&$top=2000&$select=CNPJ,NomeInstituicao,TipoInstituicao,MunicipioSede,UfSede,DataInicioAtividade&$orderby=NomeInstituicao`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(r.status);
+    const json = await r.json();
+    instData = json.value || [];
+
+    // KPIs
+    document.getElementById('ik-total').textContent = instData.length;
+    const bancos = instData.filter(d=>/banco/i.test(d.TipoInstituicao||'')).length;
+    const coops  = instData.filter(d=>/cooperativa/i.test(d.TipoInstituicao||'')).length;
+    const fin    = instData.filter(d=>/financeira/i.test(d.TipoInstituicao||'')).length;
+    document.getElementById('ik-bancos').textContent = bancos;
+    document.getElementById('ik-coops').textContent = coops;
+    document.getElementById('ik-fin').textContent = fin;
+
+    // Preencher UFs
+    const ufs = [...new Set(instData.map(d=>d.UfSede).filter(Boolean))].sort();
+    const selUF = document.getElementById('inst-uf');
+    ufs.forEach(uf=>{ const o=document.createElement('option'); o.value=uf; o.textContent=uf; selUF.appendChild(o); });
+
+    document.getElementById('load-inst').style.display='none';
+    filtrarInst();
+
+  } catch(e) {
+    document.getElementById('load-inst').innerHTML = '<div style="color:var(--red);font-family:\'DM Mono\',monospace;font-size:10px">⚠ Erro ao carregar instituições. Verifique a conexão.</div>';
+    console.error('Inst',e);
+  }
+}
+
+function filtrarInst() {
+  const busca = (document.getElementById('inst-busca').value||'').toLowerCase();
+  const tipo  = document.getElementById('inst-tipo').value;
+  const uf    = document.getElementById('inst-uf').value;
+
+  const filtered = instData.filter(d=>{
+    const nome = (d.NomeInstituicao||'').toLowerCase();
+    const matchBusca = !busca || nome.includes(busca);
+    const matchTipo  = !tipo  || (d.TipoInstituicao||'').includes(tipo);
+    const matchUF    = !uf    || d.UfSede===uf;
+    return matchBusca && matchTipo && matchUF;
+  });
+
+  document.getElementById('inst-count').textContent = `${filtered.length} instituições encontradas`;
+  document.getElementById('inst-count').style.display='block';
+
+  const top100 = filtered.slice(0,100);
+  document.getElementById('inst-tbody').innerHTML = top100.map((d,i)=>`<tr>
+    <td style="color:var(--text-muted)">${i+1}</td>
+    <td style="font-size:10px;color:var(--text-dim)">${(d.CNPJ||'—').replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5')}</td>
+    <td style="color:var(--text)">${d.NomeInstituicao||'—'}</td>
+    <td style="color:var(--gold);font-size:10px">${d.TipoInstituicao||'—'}</td>
+    <td style="color:var(--text-dim)">${d.UfSede||'—'}</td>
+    <td style="font-size:10px;color:var(--text-dim)">${d.MunicipioSede||'—'}</td>
+    <td style="font-size:10px;color:var(--text-muted)">${d.DataInicioAtividade||'—'}</td>
+  </tr>`).join('');
+
+  if(filtered.length > 100) {
+    document.getElementById('inst-count').textContent += ` (exibindo 100 primeiros — use os filtros para refinar)`;
+  }
+
+  document.getElementById('inst-tabela').style.display='table';
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
