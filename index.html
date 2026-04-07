@@ -90,7 +90,8 @@ header{position:relative;z-index:10;display:flex;align-items:center;justify-cont
 .pbtn.active{background:rgba(200,150,58,.3);color:var(--gold2);}
 
 /* CHART */
-.chart-wrap{position:relative;}
+.chart-wrap{position:relative;width:100%;}
+.chart-wrap canvas{width:100% !important;}
 .loading-state{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;}
 .spinner{width:24px;height:24px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -1403,6 +1404,10 @@ function filtrarInst() {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+// Redimensiona todos os gráficos quando a janela muda de tamanho
+window.addEventListener('resize', () => {
+  Object.values(charts).forEach(c => { try { c.resize(); } catch(e){} });
+});
 async function loadTicker() {
   // Dados extras do ticker que não carregam na aba Macro
   try {
