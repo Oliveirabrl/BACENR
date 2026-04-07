@@ -183,10 +183,10 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">IPCA — Inflação Mensal</div><div class="panel-sub">ÍNDICE DE PREÇOS AO CONSUMIDOR AMPLO · SÉRIE 433</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('ipca',1,this)">1A</span>
-          <span class="pbtn" onclick="reloadChart('ipca',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('ipca',5,this)">5A</span>
-          <span class="pbtn" onclick="reloadChart('ipca',10,this)">10A</span>
+          <span class="pbtn active" onclick="reloadChart('ipca',12,this)">1A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',60,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('ipca',120,this)">10A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:180px"><div class="loading-state" id="load-ipca" style="height:180px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ipca" style="display:none"></canvas></div>
@@ -201,9 +201,9 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">SELIC — Taxa Básica</div><div class="panel-sub">META SELIC · SÉRIE 432</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('selic',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('selic',5,this)">5A</span>
-          <span class="pbtn" onclick="reloadChart('selic',10,this)">10A</span>
+          <span class="pbtn active" onclick="reloadChart('selic',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('selic',60,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('selic',120,this)">10A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-selic" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-selic" style="display:none"></canvas></div>
@@ -233,8 +233,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Volume de Crédito</div><div class="panel-sub">TOTAL · PF · PJ — R$ BILHÕES · SÉRIES 20539/20541/20540</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('cred',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('cred',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('cred',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('cred',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-cred" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-cred" style="display:none"></canvas></div>
@@ -243,8 +243,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Inadimplência</div><div class="panel-sub">TOTAL · PF · PJ — % · SÉRIES 21082/21083/21084</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('inad',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('inad',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('inad',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('inad',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-inad" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-inad" style="display:none"></canvas></div>
@@ -275,9 +275,9 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Dívida Bruta do Governo Geral</div><div class="panel-sub">% DO PIB · SÉRIE 13762</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('divida',3,this)">3A</span>
-          <span class="pbtn" onclick="reloadChart('divida',5,this)">5A</span>
-          <span class="pbtn" onclick="reloadChart('divida',10,this)">10A</span>
+          <span class="pbtn active" onclick="reloadChart('divida',36,this)">3A</span>
+          <span class="pbtn" onclick="reloadChart('divida',60,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('divida',120,this)">10A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-divida" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-divida" style="display:none"></canvas></div>
@@ -286,8 +286,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Resultado Primário — Gov. Central</div><div class="panel-sub">R$ MILHÕES · SÉRIE 5793</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('primario',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('primario',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('primario',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('primario',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-primario" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-primario" style="display:none"></canvas></div>
@@ -318,8 +318,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">IBC-Br — Índice de Atividade</div><div class="panel-sub">PROXY MENSAL DO PIB · SÉRIE 24363</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('ibc',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('ibc',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('ibc',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('ibc',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-ibc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-ibc" style="display:none"></canvas></div>
@@ -328,8 +328,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Balança Comercial</div><div class="panel-sub">EXPORTAÇÕES · IMPORTAÇÕES · SÉRIES 22708/22709 — US$ MILHÕES</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('balanca',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('balanca',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('balanca',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('balanca',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-balanca" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-balanca" style="display:none"></canvas></div>
@@ -404,9 +404,9 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Transações Correntes — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22800</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('bptc',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('bptc',5,this)">5A</span>
-          <span class="pbtn" onclick="reloadChart('bptc',10,this)">10A</span>
+          <span class="pbtn active" onclick="reloadChart('bptc',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bptc',60,this)">5A</span>
+          <span class="pbtn" onclick="reloadChart('bptc',120,this)">10A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-bptc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bptc" style="display:none"></canvas></div>
@@ -415,8 +415,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Balança Comercial — Saldo</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22801</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('bpbc',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('bpbc',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('bpbc',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpbc',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:190px"><div class="loading-state" id="load-bpbc" style="height:190px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpbc" style="display:none"></canvas></div>
@@ -427,8 +427,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Conta Financeira</div><div class="panel-sub">US$ MILHÕES · SÉRIE 22806</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('bpcf',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('bpcf',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('bpcf',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpcf',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bpcf" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpcf" style="display:none"></canvas></div>
@@ -437,8 +437,8 @@ footer{position:relative;z-index:10;display:flex;align-items:center;justify-cont
       <div class="panel-header">
         <div><div class="panel-title">Investimento Direto no País (IDP)</div><div class="panel-sub">US$ MILHÕES · SÉRIE 23460</div></div>
         <div class="period-btns">
-          <span class="pbtn active" onclick="reloadChart('bpidp',2,this)">2A</span>
-          <span class="pbtn" onclick="reloadChart('bpidp',5,this)">5A</span>
+          <span class="pbtn active" onclick="reloadChart('bpidp',24,this)">2A</span>
+          <span class="pbtn" onclick="reloadChart('bpidp',60,this)">5A</span>
         </div>
       </div>
       <div class="chart-wrap" style="height:170px"><div class="loading-state" id="load-bpidp" style="height:170px"><div class="spinner"></div><div class="loading-text">CONSULTANDO BCB...</div></div><canvas id="chart-bpidp" style="display:none"></canvas></div>
@@ -790,13 +790,13 @@ const tblData = {};
 
 async function loadMacro() {
   await Promise.allSettled([
-    loadIPCA(1), loadSELIC(2), loadCompInf(), loadCDI()
+    loadIPCA(12), loadSELIC(24), loadCompInf(), loadCDI()
   ]);
 }
 
-async function loadIPCA(months=1) {
+async function loadIPCA(months=12) {
   try {
-    const d = await bcb(433, months*12);
+    const d = await bcb(433, months);
     const thin = thinData(d);
     buildBar('chart-ipca', thin.map(x=>fmt(x.data)), thin.map(x=>parseFloat(x.valor)));
     showC('chart-ipca','load-ipca');
@@ -813,9 +813,9 @@ async function loadIPCA(months=1) {
   } catch(e){console.error('IPCA',e);}
 }
 
-async function loadSELIC(months=2) {
+async function loadSELIC(months=24) {
   try {
-    const d = await bcb(432, months*12);
+    const d = await bcb(432, months);
     const thin = thinData(d);
     buildLine('chart-selic', thin.map(x=>fmt(x.data)),
       [ds('SELIC',thin.map(x=>parseFloat(x.valor)),COLORS.blue,true,'chart-selic')], '%');
