@@ -650,13 +650,21 @@ function subM(months) {
 }
 async function bcb(code, months) {
   const url = `${BCB}.${code}/dados?formato=json&dataInicial=${subM(months)}&dataFinal=${today()}`;
-  const r = await fetch(url);
-  if(!r.ok) throw new Error(r.status);
-  return r.json();
+  const timeout = new Promise((_,reject) => setTimeout(() => reject(new Error('timeout')), 15000));
+  const request = fetch(url).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); });
+  return Promise.race([request, timeout]);
 }
 function showC(id, loadId) {
   document.getElementById(loadId).style.display='none';
   document.getElementById(id).style.display='block';
+}
+function showErr(loadId, msg='Erro ao carregar. Tente recarregar a aba.') {
+  const el = document.getElementById(loadId);
+  el.innerHTML = `<div style="text-align:center;padding:20px;">
+    <div style="color:var(--red);font-family:'DM Mono',monospace;font-size:10px;margin-bottom:8px">⚠ ${msg}</div>
+    <div style="color:var(--text-muted);font-family:'DM Mono',monospace;font-size:9px">API BCB lenta ou indisponível</div>
+  </div>`;
+  el.style.display='flex';
 }
 function setKPI(id, val, unit='', sub='') {
   const el = document.getElementById(id);
@@ -875,8 +883,10 @@ async function loadCredito() {
 
 async function loadCredVol(months=24) {
   try {
-    // 20539=Total, 20541=PF, 20540=PJ (todos recursos livres + direcionados)
-    const [tot,pf,pj]=await Promise.all([bcb(20539,months),bcb(20541,months),bcb(20540,months)]);
+    // Busca sequencial para não sobrecarregar a API
+    const tot = await bcb(20539, months);
+    const pf  = await bcb(20541, months);
+    const pj  = await bcb(20540, months);
     const t=thinData(tot), labels=t.map(x=>fmt(x.data));
     buildLine('chart-cred',labels,[
       ds('Total',t.map(x=>parseFloat(x.valor)/1000),COLORS.gold,false),
@@ -892,12 +902,14 @@ async function loadCredVol(months=24) {
     document.getElementById('ks-cred-pf').textContent = `Ref: ${fmt(lp.data)}`;
     document.getElementById('k-cred-pj').textContent = fmtNum(parseFloat(lj.valor)/1000,0);
     document.getElementById('ks-cred-pj').textContent = `Ref: ${fmt(lj.data)}`;
-  } catch(e){console.error('Cred',e);}
+  } catch(e){ showErr('load-cred'); console.error('Cred',e); }
 }
 
 async function loadInad(months=24) {
   try {
-    const [tot,pj,pf]=await Promise.all([bcb(21082,months),bcb(21083,months),bcb(21084,months)]);
+    const tot = await bcb(21082, months);
+    const pj  = await bcb(21083, months);
+    const pf  = await bcb(21084, months);
     const t=thinData(tot), labels=t.map(x=>fmt(x.data));
     buildLine('chart-inad',labels,[
       ds('Total',t.map(x=>parseFloat(x.valor)),COLORS.red,false),
@@ -911,7 +923,7 @@ async function loadInad(months=24) {
     document.getElementById('t-inad').textContent = fmtNum(lt.valor);
     document.getElementById('k-inad-pf').textContent = fmtNum(lp.valor);
     document.getElementById('ks-inad-pf').textContent = `Ref: ${fmt(lp.data)}`;
-  } catch(e){console.error('Inad',e);}
+  } catch(e){ showErr('load-inad'); console.error('Inad',e); }
 }
 
 async function loadJurosPF() {
